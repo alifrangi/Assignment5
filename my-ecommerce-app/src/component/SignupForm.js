@@ -1,3 +1,4 @@
+//SignupForm
 import React, { useState } from 'react';
 
 const SignupForm = ({ switchToLogin }) => {
@@ -7,17 +8,31 @@ const SignupForm = ({ switchToLogin }) => {
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!username || !password || !confirmPassword || !email) {
             setError('All fields are required.');
         } else if (password !== confirmPassword) {
             setError('Passwords do not match.');
         } else {
-            // Simulate successful signup
-            setError('');
-            alert('User signed up successfully.');
-            // You may want to perform further actions here, such as redirecting to another page
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password, email }),
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Registration failed');
+                }
+                setError('');
+                alert('User signed up successfully.');
+                //Perform further actions here, such as redirecting to another page
+            } catch (error) {
+                setError(error.message);
+            }
         }
     };
 
