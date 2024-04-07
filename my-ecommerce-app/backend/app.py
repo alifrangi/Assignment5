@@ -8,6 +8,7 @@ CORS(app)
 
 users= []
 
+#User Registration API Endpoint
 @app.route('/api/register', methods=['POST'])
 def register_user():
     data = request.get_json()
