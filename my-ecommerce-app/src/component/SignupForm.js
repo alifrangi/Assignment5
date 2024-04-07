@@ -1,15 +1,22 @@
-//SignupForm
 import React, { useState } from 'react';
 
-const SignupForm = ({ switchToLogin }) => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [email, setEmail] = useState('');
+const SignupForm = ({ onSignup, switchToLogin }) => {
+    const [formData, setFormData] = useState({
+        username: '',
+        password: '',
+        confirmPassword: '',
+        email: '',
+    });
     const [error, setError] = useState('');
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const { username, password, confirmPassword, email } = formData;
         if (!username || !password || !confirmPassword || !email) {
             setError('All fields are required.');
         } else if (password !== confirmPassword) {
@@ -23,15 +30,15 @@ const SignupForm = ({ switchToLogin }) => {
                     },
                     body: JSON.stringify({ username, password, email }),
                 });
-                const data = await response.json();
                 if (!response.ok) {
-                    throw new Error(data.error || 'Registration failed');
+                    throw new Error('Registration failed');
                 }
+                const data = await response.json();
                 setError('');
+                onSignup(); // Callback to parent component
                 alert('User signed up successfully.');
-                //Perform further actions here, such as redirecting to another page
             } catch (error) {
-                setError(error.message);
+                setError('Registration failed. Please try again.'); // Generic error message
             }
         }
     };
@@ -46,8 +53,8 @@ const SignupForm = ({ switchToLogin }) => {
                     id="username"
                     name="username"
                     placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={formData.username}
+                    onChange={handleChange}
                 />
             </div>
             <div>
@@ -57,8 +64,8 @@ const SignupForm = ({ switchToLogin }) => {
                     id="password"
                     name="password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formData.password}
+                    onChange={handleChange}
                 />
             </div>
             <div>
@@ -68,8 +75,8 @@ const SignupForm = ({ switchToLogin }) => {
                     id="confirmPassword"
                     name="confirmPassword"
                     placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
                 />
             </div>
             <div>
@@ -79,11 +86,11 @@ const SignupForm = ({ switchToLogin }) => {
                     id="email"
                     name="email"
                     placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formData.email}
+                    onChange={handleChange}
                 />
             </div>
-            {error && <div className="error">{error}</div>} {/* Wrapped error in a div */}
+            {error && <div className="error">{error}</div>}
             <button type="submit">Submit</button>
             <p>Already have an account? <span onClick={switchToLogin}>Login</span></p>
         </form>
